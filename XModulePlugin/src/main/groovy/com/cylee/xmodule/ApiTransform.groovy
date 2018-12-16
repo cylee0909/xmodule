@@ -2,14 +2,11 @@ package com.cylee.xmodule
 
 import com.android.build.api.transform.*
 import com.android.build.gradle.BaseExtension
-import com.android.build.gradle.BasePlugin
 import com.android.build.gradle.api.AndroidSourceSet
 import com.android.build.gradle.internal.pipeline.TransformManager
 import groovy.io.FileType
 import org.apache.commons.io.FileUtils
 import org.gradle.api.Project
-
-import java.lang.reflect.Field
 
 /**
  *  create by cylee 2018/12/16
@@ -18,27 +15,18 @@ public class ApiTransform extends Transform {
     private Project mProject
     private File apiDir;
     private List<String> fileNamePaths;
+
     public ApiTransform(Project project) {
         mProject = project
         final String apiDirName = "src/main/api";
         apiDir = project.file(apiDirName)
         if (apiDir != null && apiDir.exists() && apiDir.isDirectory()) {
-            project.getPlugins().forEach {
-                plugin ->
-                    if (plugin instanceof BasePlugin) {
-                        BasePlugin bp = (BasePlugin)plugin;
-                        Field field = ReflectUtils.getFieldByName(bp.class, "extension");
-                        if (field != null) {
-                            field.setAccessible(true)
-                        }
-                        BaseExtension extension = field.get(bp);
-                        if (extension != null) {
-                            AndroidSourceSet mainSourceSet = extension.getSourceSets().findByName("main");
-                            if (mainSourceSet != null) {
-                                mainSourceSet.java.srcDirs += apiDirName
-                            }
-                        }
-                    }
+            BaseExtension extension = project.getExtensions().findByType(BaseExtension.class)
+            if (extension != null) {
+                AndroidSourceSet mainSourceSet = extension.getSourceSets().findByName("main");
+                if (mainSourceSet != null) {
+                    mainSourceSet.java.srcDirs += apiDirName
+                }
             }
             fileNamePaths = new LinkedList<>();
             apiDir.eachFileRecurse(FileType.FILES) {

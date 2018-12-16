@@ -1,1 +1,1 @@
-include ':app', ':submodule', 'XModulePlugin'
+include ':app', ':submodule' , 'XModulePlugin'
