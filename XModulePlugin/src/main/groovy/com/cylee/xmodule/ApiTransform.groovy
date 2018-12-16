@@ -91,7 +91,7 @@ public class ApiTransform extends Transform {
                                 filePath = filePath.substring(0, dotIndex);
                             }
                             for (it in fileNamePaths) {
-                                if (filePath.endsWith(it)) {
+                                if (filePath.contains(it)) {
                                     filter = true
                                     break;
                                 }
