@@ -1,0 +1,26 @@
+apply plugin: 'groovy'
+apply plugin: 'maven'
+
+
+repositories {
+    mavenCentral()
+}
+
+dependencies {
+    compile gradleApi()
+    compile localGroovy()
+    compile 'com.android.tools.build:gradle:3.0.0'
+}
+
+//设置maven deployer
+uploadArchives {
+    repositories {
+        mavenDeployer {
+            pom.groupId = 'com.cylee.libx'
+            pom.artifactId = 'xmodule'
+            pom.version = '0.1.0'
+            //文件发布到下面目录
+            repository(url: uri('../repo'))
+        }
+    }
+}
