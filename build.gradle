@@ -6,12 +6,13 @@ buildscript {
         google()
         jcenter()
         maven {
-            url uri("./repo")
+            url  "https://dl.bintray.com/cylee0909/xmodule"
         }
     }
     dependencies {
         classpath 'com.android.tools.build:gradle:3.0.0'
         classpath 'com.cylee.libx:xmodule:0.1.0'
+        classpath 'com.novoda:bintray-release:0.3.4'
     }
 }
 

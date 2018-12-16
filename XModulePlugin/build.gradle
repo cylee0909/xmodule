@@ -1,5 +1,6 @@
 apply plugin: 'groovy'
 apply plugin: 'maven'
+apply plugin: 'com.novoda.bintray-release'
 
 
 repositories {
@@ -12,15 +13,13 @@ dependencies {
     compile 'com.android.tools.build:gradle:3.0.0'
 }
 
-//设置maven deployer
-uploadArchives {
-    repositories {
-        mavenDeployer {
-            pom.groupId = 'com.cylee.libx'
-            pom.artifactId = 'xmodule'
-            pom.version = '0.1.0'
-            //文件发布到下面目录
-            repository(url: uri('../repo'))
-        }
-    }
+//添加
+publish {
+    repoName = "xmodule"
+    userOrg = 'cylee0909'//bintray.com用户名
+    groupId = 'com.cylee.libx'//jcenter上的路径
+    artifactId = 'xmodule'//项目名称
+    publishVersion = '0.1.0'//版本号
+    desc = 'An Android Module Compile Library'//描述，不重要
+    website = 'https://github.com/cylee0909/xmodule'//网站，不重要
 }
