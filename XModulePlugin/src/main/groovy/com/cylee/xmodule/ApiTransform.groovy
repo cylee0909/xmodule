@@ -33,6 +33,7 @@ public class ApiTransform extends Transform {
                 it ->
                     String path = it.path
                     if (path.endsWith(".java") || path.endsWith(".kt")) {
+                        path = path.replaceAll("\\\\", "/");
                         int index = path.indexOf(apiDirName);
                         int dotIndex = path.lastIndexOf(".");
                         if (index > -1 && index < dotIndex) {
@@ -74,10 +75,7 @@ public class ApiTransform extends Transform {
                         if (file.isFile() && fileNamePaths != null) {
                             boolean filter = false;
                             String filePath = file.getAbsolutePath();
-                            int dotIndex = filePath.lastIndexOf(".");
-                            if (dotIndex > -1) {
-                                filePath = filePath.substring(0, dotIndex);
-                            }
+                            filePath = filePath.replaceAll("\\\\", "/");
                             for (it in fileNamePaths) {
                                 if (filePath.contains(it)) {
                                     filter = true

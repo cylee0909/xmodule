@@ -26,6 +26,7 @@ uploadArchives {
     }
 }
 
+//-PbintrayUser=cylee0909 -PbintrayKey=xxxx -PdryRun=false
 //添加
 publish {
     repoName = "xmodule"
