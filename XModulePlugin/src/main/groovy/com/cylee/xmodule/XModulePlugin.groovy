@@ -5,6 +5,6 @@ import org.gradle.api.Project
 
 class XModulePlugin implements Plugin<Project> {
     void apply(Project project) {
-        project.android.registerTransform(new ApiTransform(project))
+        new ApiConfig(project).config()
     }
 }

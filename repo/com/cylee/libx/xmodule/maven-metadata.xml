@@ -3,10 +3,11 @@
   <groupId>com.cylee.libx</groupId>
   <artifactId>xmodule</artifactId>
   <versioning>
-    <release>0.1.0</release>
+    <release>0.2.0</release>
     <versions>
       <version>0.1.0</version>
+      <version>0.2.0</version>
     </versions>
-    <lastUpdated>20181220081848</lastUpdated>
+    <lastUpdated>20181228131521</lastUpdated>
   </versioning>
 </metadata>
