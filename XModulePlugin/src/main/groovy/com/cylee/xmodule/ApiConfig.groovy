@@ -1,34 +1,49 @@
-package com.cylee.xmodule;
+package com.cylee.xmodule
 
-import com.android.build.gradle.BaseExtension;
-import com.android.build.gradle.api.AndroidSourceSet;
-
+import com.android.build.gradle.BaseExtension
+import com.android.build.gradle.api.AndroidSourceSet
+import groovy.io.FileType
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.execution.TaskExecutionListener
 import org.gradle.api.tasks.TaskState
 import org.gradle.api.tasks.compile.JavaCompile
-import groovy.io.FileType;
 
 public class ApiConfig {
-    private File apiDir;
-    private List<String> fileNamePaths;
+    public static final String API_SOURCE_NAME = "src/main/api";
+    public static final String MODULES_SOURCE_NAME = "src/main/modules";
+    private Map<String, List<String>> filterFileConfigs;
     private Project mProject;
+    private XModule mConfig;
+    private Map<String, ModuleConfig> mModuleConfigs;
 
-    public ApiConfig(Project project) {
+    public ApiConfig(Project project, XModule config) {
         mProject = project;
+        mConfig = config;
     }
 
     public void config() {
-        configProject(mProject)
+        mProject.getGradle().addListener()
+        configProject(mProject);
+
         mProject.getGradle().addListener(new TaskExecutionListener() {
             @Override
             void beforeExecute(Task task) {
                 if (task.getProject() ==  mProject && task instanceof JavaCompile) {
                     task.doLast {
-                        if (fileNamePaths == null || fileNamePaths.empty) {
+                        if (filterFileConfigs == null || filterFileConfigs.size() == 0) {
                             return
                         }
+
+                        List<String> filterNames = new ArrayList<>()
+                        Set<String> filterFolders = filterFileConfigs.keySet();
+                        for (String name : filterFolders) {
+                            ModuleConfig config = mModuleConfigs.get(name);
+                            if (config == null || !config.compileToDex) {
+                                filterNames.addAll(filterFileConfigs.get(name))
+                            }
+                        }
+
                         List<File> checkClasses = new LinkedList<>();
                         task.getOutputs().files.forEach {
                             file ->
@@ -47,7 +62,7 @@ public class ApiConfig {
                         checkClasses.forEach {
                             String filePath = it.getAbsolutePath();
                             filePath = filePath.replaceAll("\\\\", "/");
-                            for (fn in fileNamePaths) {
+                            for (fn in filterNames) {
                                 if (filePath.contains(fn)) {
                                     it.delete()
                                     break
@@ -71,28 +86,80 @@ public class ApiConfig {
     }
 
     private void configProject(Project project) {
-        final String apiDirName = "src/main/api";
-        apiDir = project.file(apiDirName)
-        if (apiDir != null && apiDir.exists() && apiDir.isDirectory()) {
-            BaseExtension extension = project.getExtensions().findByType(BaseExtension.class)
-            if (extension != null) {
-                AndroidSourceSet mainSourceSet = extension.getSourceSets().findByName("main");
-                if (mainSourceSet != null) {
-                    mainSourceSet.java.srcDirs += apiDirName
+        mModuleConfigs = new HashMap<>();
+        File modulesDir = project.file(MODULES_SOURCE_NAME)
+        File apiDir = project.file(API_SOURCE_NAME)
+        if (!modulesDir.exists()) {
+            modulesDir.mkdirs()
+        }
+
+        if (!apiDir.exists()) {
+            apiDir.mkdirs();
+        }
+
+        if (apiDir.exists()) {
+            addDirToSource(API_SOURCE_NAME);
+        }
+
+        if (modulesDir.exists() && modulesDir.isDirectory()) {
+            filterFileConfigs = new HashMap<>();
+            File[] sourceDirs = modulesDir.listFiles(new FileFilter() {
+                @Override
+                boolean accept(File file) {
+                    boolean accept = file.isDirectory();
+                    if (accept) {
+                        String name = file.getName();
+                        mModuleConfigs.put(name, new ModuleConfig(name));
+                    }
+                    return accept;
+                }
+            });
+
+            mProject.afterEvaluate {
+                if (mConfig.getModuleCofig() != null) {
+                    mConfig.getModuleCofig().execute(mModuleConfigs.values())
                 }
             }
-            fileNamePaths = new LinkedList<>();
-            apiDir.eachFileRecurse(FileType.FILES) {
+
+            if (sourceDirs != null && sourceDirs.length > 0) {
+                for (File dir : sourceDirs) {
+                    String name = dir.getName();
+                    configDir(name)
+                }
+            }
+        }
+    }
+
+    private void addDirToSource(String dirName) {
+        BaseExtension extension = mProject.getExtensions().findByType(BaseExtension.class)
+        if (extension != null) {
+            AndroidSourceSet mainSourceSet = extension.getSourceSets().findByName("main");
+            if (mainSourceSet != null) {
+                mainSourceSet.java.srcDirs += mProject.file(dirName).getAbsolutePath();
+            }
+        }
+    }
+
+    private void configDir(String sourceName) {
+        String dirName = "${MODULES_SOURCE_NAME}/$sourceName"
+        File dir = mProject.file(dirName)
+        if (dir != null && dir.exists() && dir.isDirectory()) {
+            addDirToSource(dirName);
+            ArrayList<String> filterNames = new ArrayList();
+            dir.eachFileRecurse(FileType.FILES) {
                 it ->
                     String path = it.path
                     if (path.endsWith(".java") || path.endsWith(".kt")) {
                         path = path.replaceAll("\\\\", "/");
-                        int index = path.indexOf(apiDirName);
+                        int index = path.indexOf(dirName);
                         int dotIndex = path.lastIndexOf(".");
                         if (index > -1 && index < dotIndex) {
-                            fileNamePaths.add(path.substring(index + apiDirName.length(), dotIndex))
+                            filterNames.add(path.substring(index + dirName.length(), dotIndex))
                         }
                     }
+            }
+            if (!filterNames.isEmpty()) {
+                filterFileConfigs.put(sourceName, filterNames);
             }
         }
     }

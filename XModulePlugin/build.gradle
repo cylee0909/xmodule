@@ -19,7 +19,7 @@ uploadArchives {
         mavenDeployer {
             pom.groupId = 'com.cylee.libx'
             pom.artifactId = 'xmodule'
-            pom.version = '0.2.0'
+            pom.version = '0.3.0'
             //文件发布到下面目录
             repository(url: uri('../repo'))
         }
@@ -33,7 +33,7 @@ publish {
     userOrg = 'cylee0909'//bintray.com用户名
     groupId = 'com.cylee.libx'//jcenter上的路径
     artifactId = 'xmodule'//项目名称
-    publishVersion = '0.2.0'//版本号
+    publishVersion = '0.3.0'//版本号
     desc = 'An Android Module Compile Library'//描述，不重要
     website = 'https://github.com/cylee0909/xmodule'//网站，不重要
 }

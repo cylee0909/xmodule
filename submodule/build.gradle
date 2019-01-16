@@ -23,6 +23,16 @@ android {
 
 }
 
+xmodule {
+    modules {
+        it.forEach {
+            String moduleName = it.name;
+            println("find the module --> $moduleName")
+            it.compileToDex = false;
+        }
+    }
+}
+
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     implementation 'com.android.support:appcompat-v7:26.1.0'
