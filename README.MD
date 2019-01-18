@@ -11,9 +11,7 @@ Xmodule是一个gradle插件，用来支持Android项目的模块化，以实现
 ```groovy
 buildscript {
     repositories {
-         maven {
-                url  "https://dl.bintray.com/cylee0909/xmodule"
-            }
+         jcenter()
     }
     dependencies {
     	classpath 'com.cylee.libx:xmodule:0.3.0'
