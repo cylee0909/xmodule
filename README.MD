@@ -1,6 +1,6 @@
 # Xmodule简介
 ## Xmodule是什么
-Xmodule是一个gradle插件，用来支持Android项目的模块化，以实现模块间的运行时及编译期的解构。
+Xmodule是一个gradle插件，用来支持Android项目的模块化，以实现模块间的运行时及编译期的解耦。
 
 ## Xmodule怎么使用
 
