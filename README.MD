@@ -84,7 +84,9 @@ buildscript {
 
   ```java
   if (testImpl != null) {
-   	testImpl.test();   
+    // 如有需要创建需要的bean实例，TestBean也需要放到`src/main/api`下
+    TestBean bean = new TestBean();
+   	testImpl.test(bean);   
   }
   ```
 
