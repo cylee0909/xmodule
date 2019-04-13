@@ -20,7 +20,7 @@ public class ApiFinder {
         try {
             Class clazz = Class.forName(absolutePath);
             if (!INoProguard.class.isAssignableFrom(interfaceClass)) {
-                throw new RuntimeException("interface "+interfaceClass.getName()+" must extends com.baidu.homework.common.utils.INoProguard");
+                throw new RuntimeException("interface "+interfaceClass.getName()+" must extends com.cylee.INoProguard");
             }
             if (interfaceClass.isAssignableFrom(clazz)) {
                 Constructor<T> constructor = clazz.getConstructor(new Class[0]);
