@@ -8,14 +8,15 @@ class ModuleConfig {
     /**
      * 模块名称
      */
-    String name;
+    String name
     /**
-     * 是否编译到dex，默认false
+     * 是否编译到dex，默认true
      */
-    boolean compileToDex;
+    boolean compileToDex
 
     ModuleConfig(String name) {
         this.name = name
+        this.compileToDex = true
     }
 }
 

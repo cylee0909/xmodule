@@ -28,7 +28,7 @@ xmodule {
         it.forEach {
             String moduleName = it.name;
             println("find the module --> $moduleName")
-            it.compileToDex = false;
+            it.compileToDex = true;
         }
     }
 }

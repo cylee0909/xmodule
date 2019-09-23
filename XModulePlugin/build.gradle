@@ -19,7 +19,7 @@ uploadArchives {
         mavenDeployer {
             pom.groupId = 'com.cylee.libx'
             pom.artifactId = 'xmodule'
-            pom.version = '0.3.0'
+            pom.version = '0.3.0_5'
             //文件发布到下面目录
             repository(url: uri('../repo'))
         }

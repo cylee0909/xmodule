@@ -6,10 +6,14 @@ import groovy.io.FileType
 import org.gradle.api.Project
 import org.gradle.api.Task
 import org.gradle.api.execution.TaskExecutionListener
+import org.gradle.api.file.FileTreeElement
+import org.gradle.api.specs.Spec
 import org.gradle.api.tasks.TaskState
 import org.gradle.api.tasks.compile.JavaCompile
 
 public class ApiConfig {
+    public static final String MODULE_PATH = "src/main/modules";
+    public static final String MODULE_NAME = "modules";
     public static final String API_SOURCE_NAME = "src/main/api";
     public static final String MODULES_SOURCE_NAME = "src/main/modules";
     private Map<String, List<String>> filterFileConfigs;
@@ -30,46 +34,37 @@ public class ApiConfig {
             @Override
             void beforeExecute(Task task) {
                 if (task.getProject() ==  mProject && task instanceof JavaCompile) {
-                    task.doLast {
-                        if (filterFileConfigs == null || filterFileConfigs.size() == 0) {
-                            return
-                        }
-
-                        List<String> filterNames = new ArrayList<>()
-                        Set<String> filterFolders = filterFileConfigs.keySet();
-                        for (String name : filterFolders) {
-                            ModuleConfig config = mModuleConfigs.get(name);
-                            if (config == null || !config.compileToDex) {
-                                filterNames.addAll(filterFileConfigs.get(name))
-                            }
-                        }
-
-                        List<File> checkClasses = new LinkedList<>();
-                        task.getOutputs().files.forEach {
-                            file ->
-                                if (file.isDirectory()) {
-                                    file.eachFileRecurse(FileType.FILES) {
-                                        if (isBuildFile(it)) {
-                                            checkClasses.add(it)
-                                        }
-                                    }
-                                } else {
-                                    if (isBuildFile(file)) {
-                                        checkClasses.add(file)
-                                    }
+//                    if (filterFileConfigs == null || filterFileConfigs.size() == 0) {
+//                        return
+//                    }
+//
+//                    List<String> filterNames = new ArrayList<>()
+//                    Set<String> filterFolders = filterFileConfigs.keySet();
+//                    for (String name : filterFolders) {
+//                        ModuleConfig config = mModuleConfigs.get(name);
+//                        if (config == null || !config.compileToDex) {
+//                            filterNames.addAll(filterFileConfigs.get(name))
+//                        }
+//                    }
+                    JavaCompile javaCompile = (JavaCompile)task;
+                    javaCompile.exclude(new Spec<FileTreeElement>() {
+                        @Override
+                        boolean isSatisfiedBy(FileTreeElement fileTreeElement) {
+                            File current = fileTreeElement.getFile()
+                            String path = current.getAbsolutePath()
+                            path = path.replaceAll('\\\\', '/')
+                            if (path.contains(MODULE_PATH)) {
+                                File parent = current.getParentFile()
+                                while (parent != null && parent.isDirectory() && parent.getName() != MODULE_NAME) {
+                                    current = parent
+                                    parent = parent.getParentFile()
                                 }
-                        }
-                        checkClasses.forEach {
-                            String filePath = it.getAbsolutePath();
-                            filePath = filePath.replaceAll("\\\\", "/");
-                            for (fn in filterNames) {
-                                if (filePath.contains(fn)) {
-                                    it.delete()
-                                    break
-                                }
+                                ModuleConfig config = mModuleConfigs.get(current.name)
+                                return config != null && !config.compileToDex
                             }
+                            return false
                         }
-                    }
+                    })
                 }
             }
 
