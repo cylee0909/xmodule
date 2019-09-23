@@ -8,6 +8,7 @@ import org.gradle.api.Task
 import org.gradle.api.execution.TaskExecutionListener
 import org.gradle.api.tasks.TaskState
 import org.gradle.api.tasks.compile.JavaCompile
+import org.jetbrains.kotlin.gradle.tasks.KotlinCompile
 
 public class ApiConfig {
     public static final String API_SOURCE_NAME = "src/main/api";
@@ -29,7 +30,8 @@ public class ApiConfig {
         mProject.getGradle().addListener(new TaskExecutionListener() {
             @Override
             void beforeExecute(Task task) {
-                if (task.getProject() ==  mProject && task instanceof JavaCompile) {
+                if (task.getProject() ==  mProject && (task instanceof JavaCompile || task instanceof KotlinCompile)) {
+                    if (mConfig.logEnable) println("xmodule : start process $task.name")
                     task.doLast {
                         if (filterFileConfigs == null || filterFileConfigs.size() == 0) {
                             return
@@ -64,6 +66,7 @@ public class ApiConfig {
                             filePath = filePath.replaceAll("\\\\", "/");
                             for (fn in filterNames) {
                                 if (filePath.contains(fn)) {
+                                    if (mConfig.logEnable) println("xmodule : deleted $it.name")
                                     it.delete()
                                     break
                                 }
@@ -118,6 +121,15 @@ public class ApiConfig {
             mProject.afterEvaluate {
                 if (mConfig.getModuleCofig() != null) {
                     mConfig.getModuleCofig().execute(mModuleConfigs.values())
+                }
+
+                if (mConfig.logEnable) {
+                    for (String key : filterFileConfigs.keySet()) {
+                        def filterFiles = filterFileConfigs.get(key);
+                        filterFiles.forEach {
+                            println("xmodule : filter $key --> $it")
+                        }
+                    }
                 }
             }
 

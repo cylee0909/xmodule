@@ -21,6 +21,7 @@ class ModuleConfig {
 
 class XModule {
     private List<ModuleConfig> mModules;
+    private boolean logEnable;
     private Action<? super Collection<ModuleConfig>> mModuleCofig;
 
     public Action<? super Collection<ModuleConfig>> getModuleCofig() {
@@ -29,6 +30,14 @@ class XModule {
 
     void modules(Action<? super Collection<ModuleConfig>> action) {
         mModuleCofig = action;
+    }
+
+    boolean getLogEnable() {
+        return logEnable
+    }
+
+    void setLogEnable(boolean debug) {
+        this.logEnable = debug
     }
 }
 
